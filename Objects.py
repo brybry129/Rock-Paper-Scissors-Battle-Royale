@@ -1,4 +1,4 @@
-from turtle import Turtle, Screen
+from turtle import Turtle
 import random
 
 
@@ -19,14 +19,7 @@ DIRECTION = (-5, 5)
 
 class Objects:
     def __init__(self, num_objects):
-        self.scissors = []
-        self.papers = []
-        self.rocks = []
         self.players = []
-        screen = Screen()
-        screen.addshape(SCISSOR_IMAGE)
-        screen.addshape(ROCK_IMAGE)
-        screen.addshape(PAPER_IMAGE)
         for _ in range(0, num_objects):
             self.create_scissors()
             self.create_rocks()
@@ -86,19 +79,14 @@ class Objects:
     def check_bounce(self):
         for player in self.players:
             if player["Object"].ycor() > 280 or player["Object"].ycor() < -280:
-                player["Y_move"] *= -1
+                player["Y_move"] *= -1.0
             if player["Object"].xcor() > 280 or player["Object"].xcor() < -280:
-                player["X_move"] *= -1
+                player["X_move"] *= -1.0
 
     def check_collision(self):
         for player in self.players:
-            for i in range(1, len(self.players), 1):
-                if player["Object"].distance(self.players[i]["Object"]) < 15:
-
-                    player["X_move"] *= -1
-                    player["Y_move"] *= -1
-                    self.players[i]["X_move"] *= -1
-                    self.players[i]["Y_move"] *= -1
+            for i in range(0, len(self.players), 1):
+                if player["Object"].distance(self.players[i]["Object"]) < 20:
 
                     # Check for rock and scissor collision
                     if player["Type"] == "rock" and self.players[i]["Type"] == "scissor":
@@ -114,3 +102,43 @@ class Objects:
                     elif player["Type"] == "paper" and self.players[i]["Type"] == "scissor":
                         player["Object"].shape(SCISSOR_IMAGE)
                         player["Type"] = "scissor"
+
+    def check_end_game(self):
+        game_over = False
+        rocks = 0
+        papers = 0
+        scissors = 0
+        winner = ""
+        for player in self.players:
+            if player["Type"] == "rock":
+                rocks += 1
+            if player["Type"] == "scissor":
+                scissors += 1
+            if player["Type"] == "paper":
+                papers += 1
+
+        if rocks > 0 and scissors > 0:
+            game_over = False
+        elif rocks > 0 and papers > 0:
+            game_over = False
+        elif scissors > 0 and papers > 0:
+            game_over = False
+        else:
+            game_over = True
+            if rocks > 0:
+                winner = "Rocks"
+            elif scissors > 0:
+                winner = "Scissors"
+            else:
+                winner = "Papers"
+
+        return game_over, winner
+
+    def reset_game(self, num_objects):
+
+        self.players = []
+        for _ in range(0, num_objects):
+            self.create_scissors()
+            self.create_rocks()
+            self.create_papers()
+
